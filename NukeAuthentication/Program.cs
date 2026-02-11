@@ -34,6 +34,26 @@ builder.Services.AddTransient<IUserSessionRepository, UserSessionRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 #endregion
 
+#region Cookies configuration
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
+if (allowedOrigins == null || allowedOrigins.Length == 0)//sem sites cadastrados estora erro
+{
+    throw new InvalidOperationException("A configuração de sites permitidos não foi encontrada ou está vazia. Verifique as Variáveis de Ambiente.");
+}
+
+builder.Services.AddCors(option =>
+{
+    option.AddPolicy("AllowFrontend", Policy =>
+    {
+        Policy.WithOrigins(allowedOrigins)// só esses sites enviam cookies para aqui
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();// permite passar cookies
+    });
+});
+#endregion
+
 #region JasonWebToken configuration
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 
@@ -51,7 +71,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.TokenValidationParameters = new TokenValidationParameters()
+    options.TokenValidationParameters = new TokenValidationParameters() // valida o token para ser usado comparando as informações do token
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secretKey)),
@@ -62,38 +82,46 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
+
+    options.Events = new JwtBearerEvents //o ASP.NET precisa disso para ler http only, sem isso dá 401/403 em todas as rotas
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.ContainsKey("access_token")) //lé o cookie enviado e só aceita com esse nome
+            {
+                context.Token = context.Request.Cookies["access_token"];
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorizationBuilder()
-    // Nível Usuário (Todo mundo logado entra)
+
     .AddPolicy("RequireUser", policy => policy.RequireRole(
         nameof(AccessLevel.User),
         nameof(AccessLevel.VerifiedUser),
         nameof(AccessLevel.Support),
         nameof(AccessLevel.Admin),
-        nameof(AccessLevel.Master)))
+        nameof(AccessLevel.Master))) // usuario é criado com esse
 
-    // Nível Verificado (Verificado e acima entram)
     .AddPolicy("RequireVerifiedUser", policy => policy.RequireRole(
         nameof(AccessLevel.VerifiedUser),
         nameof(AccessLevel.Support),
         nameof(AccessLevel.Admin),
         nameof(AccessLevel.Master)))
 
-    // Nível Suporte (Suporte e acima entram)
     .AddPolicy("RequireSupport", policy => policy.RequireRole(
         nameof(AccessLevel.Support),
         nameof(AccessLevel.Admin),
         nameof(AccessLevel.Master)))
 
-    // Nível Admin (Admin e Master entram)
     .AddPolicy("RequireAdmin", policy => policy.RequireRole(
         nameof(AccessLevel.Admin),
         nameof(AccessLevel.Master)))
 
-    // Nível Master (Só Master)
-    .AddPolicy("RequireMaster", policy => policy.RequireRole(
-        nameof(AccessLevel.Master)));
+    .AddPolicy("RequireMaster", policy => policy.RequireRole(nameof(AccessLevel.Master))); //Apenas devs
 #endregion
 
 builder.Services.AddControllers();
@@ -143,6 +171,8 @@ if (app.Environment.IsDevelopment())
 
 #region others
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend"); // permite o preflight options funcionar sem barrar(pois n tem credenciais)
 
 app.UseAuthentication();
 app.UseAuthorization();
