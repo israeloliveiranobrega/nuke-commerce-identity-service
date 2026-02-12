@@ -1,0 +1,30 @@
+services:
+  nuke-identity-service:
+    build: .
+    container_name: nuke-identity-container
+    ports:
+      - "5000:${APP_PORT}"
+    depends_on:
+      - nuke-identity-db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ENV_TYPE}
+      - Jwt__SecretKey=${JWT_SECRET}
+      #acessa o banco internamente pela porta padrão 5432 (da direita)
+      - ConnectionStrings__NukeIdentityConnection=Host=nuke-identity-db;Port=5432;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};
+
+  nuke-identity-db:
+    image: postgres:16-alpine
+    container_name: identity-db-container
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      # acessa pela 5433 (dbeaver),o container roda na 5432
+      - "5433:5432"
+    volumes:
+      - identity-db-data:/var/lib/postgresql/data
+
+volumes:
+  identity-db-data:

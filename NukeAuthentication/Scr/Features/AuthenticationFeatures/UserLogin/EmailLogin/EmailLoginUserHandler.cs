@@ -65,7 +65,7 @@ public class EmailLoginUserHandler(IUserRepository userRepository, IJwtProvider 
             //log de login bem sucedido com nova sessão
         }
 
-        return Result<LoginUserResponse>.Success(new LoginUserResponse(userAuth.Id, accessToken, refreshToken.Code));
+        return Result<LoginUserResponse>.Success(new LoginUserResponse(userAuth.Id, userAuth.FirsName, accessToken, refreshToken.Code));
         #endregion
     }
 }

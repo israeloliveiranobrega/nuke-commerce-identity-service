@@ -44,6 +44,6 @@ public class UserSessionMap : IEntityTypeConfiguration<UserSession>
 
         builder.Ignore(x => x.IsActive);
         builder.Ignore(x => x.IsExpired);
-        builder.Property(rt => rt.Revoked).HasColumnName("Is_revoked").IsRequired();
+        builder.Property(rt => rt.Revoked).HasColumnName("is_revoked").IsRequired();
     }
 }

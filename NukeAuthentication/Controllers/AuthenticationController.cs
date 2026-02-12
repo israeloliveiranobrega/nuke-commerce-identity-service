@@ -21,9 +21,24 @@ public class AuthenticationController(IMediator mediator) : ControllerBase
     {
         var response = await mediator.Send(userCommand);
 
+        SetTokenCookies("user_id", response.Value.UserId.ToString(), DateTime.UtcNow.AddDays(7));
 
         return CreatedAtAction(nameof(Register), new { id = response.Value.UserId }, response.Value.UserId);
     }
+
+
+    [HttpPost("email/sendcode")]
+    public async Task<IActionResult> SendEmail()
+    {
+        return BadRequest("To fazendo!");
+    }
+
+    [HttpPost("email/verifycode")]
+    public async Task<IActionResult> FerifyEmail(string code)
+    {
+        return BadRequest("To fazendo!");
+    }
+
 
     [HttpPost("login/email")]
     [AllowAnonymous]
@@ -37,9 +52,12 @@ public class AuthenticationController(IMediator mediator) : ControllerBase
         if (!response.IsSuccess)
             return MapFailure(response.FailureType);
 
-        SetTokenCookies(response.Value!.AccessToken, response.Value!.RefreshToken);
+        SetTokenCookies("user_id", response.Value.UserId.ToString(), DateTime.UtcNow.AddDays(7));
 
-        return Ok(new { message = "Login realizado com sucesso", userId = response.Value.UserId });
+        SetTokenCookies("access_token", response.Value!.AccessToken, DateTime.UtcNow.AddMinutes(7));
+        SetTokenCookies("refresh_token", response.Value!.RefreshToken, DateTime.UtcNow.AddDays(7));
+
+        return Ok($"Bem vindo, {response.Value.FirstName}!");
     }
 
     [HttpPost("login/cpf")]
@@ -54,15 +72,20 @@ public class AuthenticationController(IMediator mediator) : ControllerBase
         if (!response.IsSuccess)
             return MapFailure(response.FailureType);
 
-        SetTokenCookies(response.Value!.AccessToken, response.Value!.RefreshToken);
+        SetTokenCookies("user_id", response.Value.UserId.ToString(), DateTime.UtcNow.AddDays(7));
 
-        return Ok(new { message = "Login realizado com sucesso", userId = response.Value.UserId });
+        SetTokenCookies("access_token", response.Value!.AccessToken, DateTime.UtcNow.AddMinutes(7));
+        SetTokenCookies("refresh_token", response.Value!.RefreshToken, DateTime.UtcNow.AddDays(7));
+
+        return Ok($"Bem vindo, {response.Value.FirstName}!");
     }
+
 
     [HttpPost("refresh")]
     [AllowAnonymous]
-    public async Task<IActionResult> Refresh([FromBody] Guid userId)
+    public async Task<IActionResult> Refresh()
     {
+        #region Check Cookies
         if (!Request.Cookies.TryGetValue("refresh_token", out var refreshToken))
         {
             return Unauthorized("Refresh Token não encontrado nos cookies.");
@@ -71,7 +94,16 @@ public class AuthenticationController(IMediator mediator) : ControllerBase
         if (string.IsNullOrEmpty(refreshToken)) 
             return Unauthorized("Refresh Token não encontrado.");
 
-        var refreshRequest = new RefreshTokenRequest(userId, refreshToken);
+        if (!Request.Cookies.TryGetValue("user_id", out var userId))
+        {
+            return Unauthorized($"O Id do usuario não encontrado nos cookies.");
+        }
+
+        if (string.IsNullOrEmpty(userId)) 
+            return Unauthorized("Id do usuario não encontrado.");
+        #endregion
+
+        var refreshRequest = new RefreshTokenRequest(Guid.Parse(userId), refreshToken);
 
         var response = await mediator.Send(new RefreshTokenCommand(refreshRequest, new(Request.Headers.UserAgent.ToString())));
 
@@ -81,9 +113,10 @@ public class AuthenticationController(IMediator mediator) : ControllerBase
         if (!response.IsSuccess) 
             return MapFailure(response.FailureType);
 
-        SetTokenCookies(response.Value!.AccessToken, response.Value!.RefreshToken);
+        SetTokenCookies("access_token", response.Value!.AccessToken, DateTime.UtcNow.AddMinutes(7));
+        SetTokenCookies("refresh_token", response.Value!.RefreshToken, DateTime.UtcNow.AddDays(7));
 
-        return Ok(new { message = "Sessão renovada" });
+        return Ok("Sessão renovada!");
     }
 
     [HttpPost("logout")]
@@ -91,32 +124,25 @@ public class AuthenticationController(IMediator mediator) : ControllerBase
     {
         Response.Cookies.Delete("access_token");
         Response.Cookies.Delete("refresh_token");
+        Response.Cookies.Delete("user_id");
 
-        return Ok(new { message = "Deslogado com sucesso" });
+        return Ok($"Até a próxima!");
     }
 
-    private void SetTokenCookies(string accessToken, string refreshToken)
+
+
+    private void SetTokenCookies(string nameOfCookie, string valueToCookie, DateTime expiresTime)
     {
-        var accessCookieOptions = new CookieOptions
+        var cookienOptions = new CookieOptions
         {
-            HttpOnly = true, // JavaScript não lê
-            Secure = true,   // Só HTTPS
-            SameSite = SameSiteMode.Strict, // Previne CSRF
-            Expires = DateTime.UtcNow.AddMinutes(15) // Mesmo tempo do JWT
+            HttpOnly = true, 
+            Secure = true,  
+            SameSite = SameSiteMode.Strict, 
+            Expires = expiresTime
         };
 
-        var refreshCookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddDays(7) // Mesmo tempo do Refresh no banco
-        };
-
-        Response.Cookies.Append("access_token", accessToken, accessCookieOptions);
-        Response.Cookies.Append("refresh_token", refreshToken, refreshCookieOptions);
+        Response.Cookies.Append(nameOfCookie, valueToCookie, cookienOptions);
     }
-
     private IActionResult MapFailure(FailureType? failure)
     {
         return failure switch

@@ -66,7 +66,7 @@ public class CpfLoginUserHandler(IUserRepository userRepository, IJwtProvider jw
             //log de login bem sucedido com nova sessão
         }
 
-        return Result<LoginUserResponse>.Success(new LoginUserResponse(userAuth.Id, accessToken, refreshToken.Code));
+        return Result<LoginUserResponse>.Success(new LoginUserResponse(userAuth.Id, userAuth.FirsName, accessToken, refreshToken.Code));
         #endregion
     }
 }

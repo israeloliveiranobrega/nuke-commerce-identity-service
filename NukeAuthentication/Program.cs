@@ -12,7 +12,7 @@ using NukeAuthentication.Scr.Infraestructure.Repositorys.AuthenticationRepositor
 var builder = WebApplication.CreateBuilder(args);
 
 #region EntityFramework Configurations
-var connectionString = builder.Configuration.GetConnectionString("SafePlaceConnection");
+var connectionString = builder.Configuration.GetConnectionString("NukeIdentityConnection");
 
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
 #endregion
