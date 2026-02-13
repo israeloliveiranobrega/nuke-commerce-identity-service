@@ -7,15 +7,15 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["NukeAuthentication/NukeAuthentication.csproj", "NukeAuthentication/"]
-RUN dotnet restore "NukeAuthentication/NukeAuthentication.csproj"
+COPY ["src/NukeAuthentication/NukeAuthentication.csproj", "NukeAuthentication/"]
+RUN dotnet restore "src/NukeAuthentication/NukeAuthentication.csproj"
 
 COPY . .
-RUN dotnet build "NukeAuthentication//NukeAuthentication.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "src/NukeAuthentication//NukeAuthentication.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "NukeAuthentication//NukeAuthentication.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "src/NukeAuthentication//NukeAuthentication.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
