@@ -18,7 +18,7 @@ public partial class UserRepository
     {
         var test = _user
             .AsNoTracking()
-            .AnyAsync(user => user.Person.Cpf.UnformattedCpf == cpf, cancellationToken);
+            .AnyAsync(user => user.Person.Cpf.Value == cpf, cancellationToken);
 
         return test;
     }
@@ -42,7 +42,7 @@ public partial class UserRepository
                 u.Email.Address,
                 u.Email.Domain,
                 u.Person.Cpf.UnformattedCpf,
-                u.Password.Hash,
+                u.Password.Value,
                 u.Status,
                 u.Role))
             .FirstOrDefaultAsync(cancellationToken);
@@ -59,8 +59,8 @@ public partial class UserRepository
                 u.Person.LastName,
                 u.Email.Address,
                 u.Email.Domain,
-                u.Person.Cpf.UnformattedCpf,
-                u.Password.Hash,
+                u.Person.Cpf.Value,
+                u.Password.Value,
                 u.Status,
                 u.Role))
             .FirstOrDefaultAsync(cancellationToken);
@@ -70,14 +70,14 @@ public partial class UserRepository
     {
         return _user
             .AsNoTracking()
-            .Where(u => u.Person.Cpf.UnformattedCpf == cpf)
+            .Where(u => u.Person.Cpf.Value == cpf)
             .Select(u => new UserAuthDTO(
                 u.Id,
                 u.Person.FirstName,
                 u.Person.LastName,
                 u.Email.Address,
                 u.Email.Domain,
-                u.Person.Cpf.UnformattedCpf,
+                u.Person.Cpf.Value,
                 u.Password.Hash,
                 u.Status,
                 u.Role))

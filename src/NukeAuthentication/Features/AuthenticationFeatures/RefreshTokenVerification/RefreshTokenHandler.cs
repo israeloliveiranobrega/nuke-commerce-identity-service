@@ -5,9 +5,9 @@ using NukeAuthentication.Entitys;
 using NukeAuthentication.Features.AuthenticationFeatures.JasonWebTokenGenerator;
 using NukeAuthentication.Services.Repositorys.Contracts;
 using NukeAuthentication.Services.Repositorys.Implementations.DTOs;
-using NukeProjectUtils.ContainerTypes;
-using NukeProjectUtils.ValueObjects.Base;
-using NukeProjectUtils.ValueObjects.Base.Enums;
+using NukeProjectUtils.DataStructure.Enums;
+using NukeProjectUtils.Patterns.ResultPattern;
+using NukeProjectUtils.ValueObjects.Aggregates;
 using UAParser;
 
 namespace NukeAuthentication.Features.AuthenticationFeatures.RefreshTokenVerification;
@@ -26,7 +26,7 @@ public class RefreshTokenHandler(DataContext dataContext, IJwtProvider jwtPreovi
 
         #region Confirm Valid Token
         Guid sessionId = await _session.AsNoTracking()
-            .Where(x => x.UserId == request.TokenRequest.UserId && x.UserAgent.UserAgentComplete == request.UserAgent)
+            .Where(x => x.UserId == request.TokenRequest.UserId && x.UserAgent.RawValue == request.UserAgent)
             .Select(x => (Guid?)x.Id).FirstOrDefaultAsync(cancellationToken)?? default;
 
         if(await _session.AsNoTracking().AnyAsync(x => x.Id == sessionId, cancellationToken))

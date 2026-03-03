@@ -27,4 +27,8 @@
     <PackageReference Include="UUIDNext" Version="4.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Nugets\GitHub\nuke-project-utils\src\NukeProjectUtils\NukeProjectUtils.csproj" />
+  </ItemGroup>
+
 </Project>

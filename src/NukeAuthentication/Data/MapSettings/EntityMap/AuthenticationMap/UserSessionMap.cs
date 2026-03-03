@@ -23,7 +23,7 @@ public class UserSessionMap : IEntityTypeConfiguration<UserSession>
 
         builder.OwnsOne(x => x.UserAgent, userAgent =>
         {
-            userAgent.Property(ua => ua.UserAgentComplete).HasColumnName("user_agent").IsRequired();
+            userAgent.Property(ua => ua.RawValue).HasColumnName("user_agent").IsRequired();
             userAgent.Property(ua => ua.Browser).HasColumnName("browser");
             userAgent.Property(ua => ua.BrowserMajor).HasColumnName("browser_major");
             userAgent.Property(ua => ua.System).HasColumnName("system");

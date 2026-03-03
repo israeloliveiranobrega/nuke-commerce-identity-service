@@ -27,11 +27,11 @@ public class UserMap : BaseEntityMap<User>
             person.OwnsOne(x => x.Cpf, cpf =>
             {
 
-                cpf.HasIndex(x => x.UnformattedCpf).IsUnique();
-                cpf.Property(x => x.UnformattedCpf).HasColumnName("cpf").HasMaxLength(11).IsRequired();
+                cpf.HasIndex(x => x.Value).IsUnique();
+                cpf.Property(x => x.Value).HasColumnName("cpf").HasMaxLength(11).IsRequired();
                 cpf.Property(x => x.IsVerified).HasColumnName("cpf_verified");
 
-                cpf.Ignore(x => x.Numbers);
+                cpf.Ignore(x => x.FirstNumbers);
                 cpf.Ignore(x => x.Validators);
             });
         });
@@ -88,7 +88,7 @@ public class UserMap : BaseEntityMap<User>
         #region Password
         builder.OwnsOne(x => x.Password, password =>
         {
-            password.Property(x => x.Hash).HasColumnName("password").IsRequired();
+            password.Property(x => x.Value).HasColumnName("password").IsRequired();
         });
         #endregion
 

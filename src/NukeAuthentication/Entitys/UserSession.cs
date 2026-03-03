@@ -1,4 +1,5 @@
-﻿using NukeProjectUtils.ValueObjects.Base;
+﻿using NukeProjectUtils.ValueObjects.Aggregates;
+using NukeProjectUtils.ValueObjects.Base;
 using UUIDNext;
 
 namespace NukeAuthentication.Entitys;
@@ -42,7 +43,7 @@ public record UserSession
     #endregion
 
     #region UserAgent
-    public string UserAgentComplete => UserAgent.UserAgentComplete;
+    public string UserAgentComplete => UserAgent.RawValue;
     public string? Browser => UserAgent.Browser;
     public string? BrowserMajor => UserAgent.BrowserMajor;
     public string? System => UserAgent.System;

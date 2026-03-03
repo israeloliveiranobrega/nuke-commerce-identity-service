@@ -12,13 +12,6 @@ public sealed class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
 {
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
-    public Task<string> GerateRefreshToken()
-    {
-        var randomNumber = new byte[32];
-        RandomNumberGenerator.Fill(randomNumber);
-        return Task.FromResult(Convert.ToBase64String(randomNumber));
-    }
-
     public Task<string> GerateAccessToken(UserAuthDTO user)
     {
         var claims = new List<Claim>()

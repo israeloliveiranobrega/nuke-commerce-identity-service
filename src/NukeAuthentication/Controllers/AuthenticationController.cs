@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using NukeAuthentication.Features.AuthenticationFeatures.UserLogin.CpfLogin.DTOs;
 using NukeAuthentication.Features.AuthenticationFeatures.UserLogin.EmailLogin.DTOs;
@@ -8,7 +7,6 @@ using NukeAuthentication.Features.AuthenticationFeatures.UserRegister;
 using NukeAuthentication.Features.AuthenticationFeatures.RefreshTokenVerification;
 using NukeAuthentication.Features.AuthenticationFeatures.UserLogin.CpfLogin;
 using NukeAuthentication.Features.AuthenticationFeatures.UserLogin.EmailLogin;
-using NukeAuthentication.Shared;
 
 namespace NukeAuthentication.Controllers;
 [Route("api/[controller]")]

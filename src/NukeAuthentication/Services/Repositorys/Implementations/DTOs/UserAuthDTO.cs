@@ -1,4 +1,4 @@
-﻿using NukeProjectUtils.ValueObjects.Base.Enums;
+﻿using NukeProjectUtils.DataStructure.Enums;
 
 namespace NukeAuthentication.Services.Repositorys.Implementations.DTOs;
 

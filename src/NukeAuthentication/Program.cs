@@ -7,7 +7,6 @@ using NukeAuthentication.Features.AuthenticationFeatures.JasonWebTokenGenerator;
 using NukeAuthentication.Scr.Infraestructure.Repositorys.AuthenticationRepositorys.Implementations.UserRepo;
 using NukeAuthentication.Services.Repositorys.Contracts;
 using NukeAuthentication.Services.Repositorys.Implementations;
-using NukeAuthentication.Shared.ValueObjects.Base.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -5,5 +5,4 @@ namespace NukeAuthentication.Features.AuthenticationFeatures.JasonWebTokenGenera
 public interface IJwtProvider
 {
     Task<string> GerateAccessToken(UserAuthDTO user);
-    Task<string> GerateRefreshToken();
 }

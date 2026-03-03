@@ -43,7 +43,7 @@ public class UserSessionRepository(DataContext dataContext) : IUserSessionReposi
     {
         Guid? result = await _session
             .AsNoTracking()
-            .Where(x => x.UserId == userId && x.UserAgent.UserAgentComplete == UserAgent)
+            .Where(x => x.UserId == userId && x.UserAgent.RawValue == UserAgent)
             .Select(x => (Guid?)x.Id)
             .FirstOrDefaultAsync(cancellationToken);
 

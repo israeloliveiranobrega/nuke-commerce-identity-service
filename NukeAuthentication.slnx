@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../../../Nugets/GitHub/nuke-project-utils/src/NukeProjectUtils/NukeProjectUtils.csproj" />
   <Project Path="src/NukeAuthentication/NukeAuthentication.csproj" />
 </Solution>
